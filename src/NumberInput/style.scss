@@ -1,0 +1,26 @@
+@use "../Components/Constant/font.scss" as *;
+
+.numberInput_wrapper {
+    padding: 0 16px;
+    box-sizing: border-box;
+    width: 100%;
+    outline: none;
+    border: 0;
+    text-align: center;
+    color: #4d4d4d;
+    @include c_body_3();
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: #fff;
+}
+
+.numberInput_wrapper::placeholder {
+    @include c_body_3();
+    color: #bdbdbd;
+}
+
+.numberInput_wrapper[disabled] {
+    background-color: #fff;
+}

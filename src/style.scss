@@ -1,0 +1,179 @@
+@use "./normalize.scss" as *;
+@use "./Components/Constant/font.scss" as *;
+
+html,
+.wrapper,
+body,
+body > div:first-child {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+html,
+body {
+    overflow: hidden;
+}
+
+.wrapper {
+    background-color: #fff;
+    position: relative;
+}
+
+.question {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-flow: row wrap;
+    width: 100%;
+    flex: 0 0 auto;
+    margin-bottom: 3.2rem;
+}
+
+.questionContent {
+    color: #212121;
+    @include c_h_5();
+}
+
+.table_wrapper {
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+}
+
+.row_wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-flow: row nowrap;
+    border-bottom: 1px solid #ebebeb;
+    box-sizing: border-box;
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.col_wrapper {
+    flex: 0 0 auto;
+    height: 54px;
+    background-color: #fff;
+    border-right: 1px solid #ebebeb;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    &:last-child {
+        border-right: 0;
+    }
+    position: relative;
+    padding: 10px 16px;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 1px solid transparent;
+        box-sizing: border-box;
+        pointer-events: none;
+        transition: all 0.1s linear;
+    }
+    &.col_active {
+        &::after {
+            border-color: #22a6b3;
+        }
+    }
+}
+
+.col_bolder {
+    background: #f9fbfb;
+    @include c_h_7();
+}
+
+/****** 下拉框部分 *************/
+.colItem_dropdownBtn {
+    padding: 4px 30px 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.1 linear;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    max-height: 100%;
+    max-width: 100%;
+    position: relative;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    &:hover {
+        background: #fafafa;
+    }
+}
+
+.colItem_dropdownIconContainer {
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 8px;
+    margin: auto;
+}
+
+.colItem_dropdownIcon {
+    font-size: 10.5px;
+    color: #4d4d4d;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: block;
+    transition: all 0.1 linear;
+    margin: auto;
+}
+
+.colItem_placeholder {
+    color: #bdbdbd;
+    @include c_body_3();
+}
+
+.colItem_dropdownBody {
+    background: #ffffff;
+    padding: 8px 4px;
+    box-shadow: 0px 2px 6px rgba(26, 26, 26, 0.06), 0px 3px 15px rgba(26, 26, 26, 0.1);
+    border-radius: 6px;
+}
+
+.colItem_dropdownItem {
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    @include c_body_3();
+    color: #757575;
+    cursor: pointer;
+    transition: all 0.1s linear;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &:hover {
+        background-color: #e9f7f8;
+    }
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.colItem_scrollBody {
+    max-height: 175px;
+    height: auto;
+}
+
+.colItem_content {
+    color: #4d4d4d;
+    @include c_body_3();
+}
+/****** 下拉框部分end *************/

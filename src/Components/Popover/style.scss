@@ -1,0 +1,38 @@
+/**
+* @file  *** styles
+* @date 2022-01-14
+* @author xuejie.he
+* @lastModify xuejie.he 2022-01-14
+*/
+/* <------------------------------------ **** CONSTANT IMPORT START **** ------------------------------------ */
+/** Import all the reference constant after this line */
+@use "../Constant/font.scss" as *;
+@use "../Constant/color.scss" as *;
+
+/* <------------------------------------ **** CONSTANT IMPORT END **** ------------------------------------ */
+/* <------------------------------------ **** SECTION1 MIXIN START **** ------------------------------------ */
+/** The demo mixin is ..........*/
+@mixin container {
+    z-index: 150 !important;
+}
+/* <------------------------------------ **** SECTION1 MIXIN END **** ------------------------------------ */
+
+.popover_vertical {
+    @include container();
+}
+
+.popover_horizontal {
+    @include container();
+}
+
+.popover_body {
+    border-radius: 4px;
+    background-color: rgba($type, 0.8);
+    box-shadow: $shadow_06dp;
+    color: $background;
+    @include c_label_1();
+    padding: 4px 12px;
+    max-width: 196px;
+    word-wrap: break-word;
+    word-break: keep-all;
+}
