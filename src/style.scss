@@ -1,5 +1,6 @@
 @use "./normalize.scss" as *;
 @use "./Components/Constant/font.scss" as *;
+@use "./Components/Constant/color.scss" as *;
 
 html,
 .wrapper,
@@ -49,6 +50,7 @@ body {
     flex-flow: row nowrap;
     border-bottom: 1px solid #ebebeb;
     box-sizing: border-box;
+    position: relative;
     &:last-child {
         border-bottom: 0;
     }
@@ -165,6 +167,9 @@ body {
     }
     &:last-child {
         margin-bottom: 0;
+    }
+    &.colItem_dropdownItemActive {
+        color: #22a6b3;
     }
 }
 

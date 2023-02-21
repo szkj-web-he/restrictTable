@@ -14,6 +14,7 @@ import { Icon } from "./Components/Icon";
 import { Popover } from "./Components/Popover";
 import { ScrollComponent } from "./Components/Scroll";
 import { useMobile } from "./Components/Scroll/Unit/useMobile";
+import classNames from "./Components/Unit/classNames";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -110,7 +111,9 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
                     {menus.map((item, index) => {
                         return (
                             <div
-                                className="colItem_dropdownItem"
+                                className={classNames("colItem_dropdownItem", {
+                                    colItem_dropdownItemActive: value === item,
+                                })}
                                 key={index}
                                 onClick={() => {
                                     if (value !== item) {

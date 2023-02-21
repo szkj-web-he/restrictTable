@@ -188,13 +188,14 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                                     );
                                 }
                                 return (
-                                    <div
-                                        className={"col_wrapper col_bolder"}
-                                        style={{ width: itemsWidth[i + 1] }}
-                                        key={i}
-                                    >
-                                        {col.content}
-                                    </div>
+                                    <Fragment key={i}>
+                                        <div
+                                            className={"col_wrapper col_bolder"}
+                                            style={{ width: itemsWidth[i + 1] }}
+                                        >
+                                            {col.content}
+                                        </div>
+                                    </Fragment>
                                 );
                             }
 

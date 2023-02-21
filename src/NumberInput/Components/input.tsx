@@ -117,15 +117,16 @@ const Temp: React.FC<ChildTempProps> = ({
      * 在输入的时候
      */
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.currentTarget;
+        let { value } = e.currentTarget;
         const reg = /[^0-9_.]/g;
         const status = reg.test(value);
 
         if (status && isComposition.current === false) {
-            e.currentTarget.value = value.replace(reg, "");
+            value = value.replace(reg, "");
         }
 
-        onChange(e.currentTarget.value);
+        e.currentTarget.value = value;
+        onChange(value);
     };
 
     /* <------------------------------------ **** FUNCTION END **** ------------------------------------ */
@@ -149,6 +150,7 @@ const Temp: React.FC<ChildTempProps> = ({
                 isComposition.current = false;
                 e.currentTarget.value = compositionVal.current;
                 compositionVal.current = "";
+                onChange(e.currentTarget.value);
             }}
             pattern="[0-9._]*"
             placeholder="请输入数字"
