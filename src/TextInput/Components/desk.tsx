@@ -6,18 +6,17 @@
  */
 /* <------------------------------------ **** DEPENDENCE IMPORT START **** ------------------------------------ */
 /** This section will include all the necessary dependence for this tsx file */
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { TempProps } from "..";
 import { Popover } from "../../Components/Popover";
 import "../style.scss";
+import Input from "./input";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 
 /* <------------------------------------ **** FUNCTION COMPONENT START **** ------------------------------------ */
-const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
+const Temp: React.FC<TempProps> = ({ onActive, active, onChange, value = "" }) => {
     /* <------------------------------------ **** STATE START **** ------------------------------------ */
     /************* This section will include this component HOOK function *************/
-
-    const [content, setContent] = useState("");
 
     const ref = useRef<HTMLDivElement | null>(null);
 
@@ -31,11 +30,11 @@ const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
 
     const textStyle = () => {
         let style: React.CSSProperties | undefined = undefined;
-        if (!(active || content.length === 0)) {
+        if (!(active || value.length === 0)) {
             style = { opacity: "0" };
         }
 
-        if (content.length === 0 || (ref.current && ref.current?.offsetHeight <= 20)) {
+        if (value.length === 0 || (ref.current && ref.current?.offsetHeight <= 20)) {
             return { ...style, height: "2rem" };
         }
         return style;
@@ -46,7 +45,7 @@ const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
             return true;
         }
 
-        if (ref.current && ref.current.scrollWidth > ref.current.offsetWidth) {
+        if (ref.current && ref.current.scrollHeight > ref.current.offsetHeight + 10) {
             return false;
         }
         return true;
@@ -58,28 +57,23 @@ const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
             <div
                 className="textInput_view"
                 ref={ref}
-                style={!active && content.length > 0 ? { visibility: "visible" } : undefined}
+                style={!active && value.length > 0 ? { visibility: "visible" } : undefined}
             >
-                {content}
+                {value}
             </div>
             <Popover
                 disable={isDisable()}
                 root={
-                    <textarea
-                        placeholder="请输入"
-                        className="textInput_edit"
-                        onInput={(e) => setContent(e.currentTarget.value)}
+                    <Input
+                        active={active}
+                        value={value}
                         style={textStyle()}
-                        onBlur={() => {
-                            onActive(false);
-                        }}
-                        onFocus={() => {
-                            onActive(true);
-                        }}
+                        onChange={onChange}
+                        onActive={onActive}
                     />
                 }
             >
-                {content}
+                {value}
             </Popover>
         </div>
     );

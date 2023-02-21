@@ -10,4 +10,4 @@
  * 有值 就是想要自己控制
  * 这时候不做组件的交互
  */
-export const isCustom = (value: boolean | undefined): boolean => typeof value === "boolean";
+export const isCustom = (value: boolean | undefined) => typeof value === "boolean";

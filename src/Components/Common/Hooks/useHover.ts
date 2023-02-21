@@ -76,6 +76,5 @@ export const useHover = (delayOnShow = 150, delayOnHide = 150) => {
                 break;
         }
         switchStatus(action.payload.callback);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 };

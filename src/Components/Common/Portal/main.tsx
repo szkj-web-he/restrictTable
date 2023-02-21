@@ -8,6 +8,8 @@
 /** This section will include all the necessary dependence for this tsx file */
 import React, { forwardRef, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import useEventListener from "../../Hooks/useEventListener";
+import { useLatest } from "../../Hooks/useLatest";
 import useUpdateLayoutEffect from "../../Hooks/useUpdateLayoutEffect";
 import { deepCloneData } from "../../Unit/deepCloneData";
 import { ActionType, useCssTransition } from "../Hooks/useCssTransition";
@@ -19,8 +21,6 @@ import { toFixed } from "../Kite/Unit/toFixed";
 import { getTransitionClass, TransitionClassProps } from "../Kite/Unit/transitionClass";
 import Triangle from "../Kite/Unit/triangle";
 import { MainProps, SizeProps } from "../Kite/Unit/type";
-import useEventListener from "./../../Hooks/useEventListener";
-import { useLatest } from "./../../Hooks/useLatest";
 import { useCloneElementSize } from "./../Hooks/useCloneElementSize";
 import { mountElement } from "./mount";
 import "./style.scss";
@@ -31,7 +31,7 @@ interface TempProps
     extends Omit<React.HTMLAttributes<HTMLDivElement>, "id">,
         Omit<MainProps, "handlePositionChange"> {
     root?: Element;
-    show?: boolean;
+    show: boolean;
     hashId?: string;
     children?: React.ReactNode;
     isTransition: boolean;
@@ -69,7 +69,7 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
 
         const positionalRef = useRef<string>();
         const [positional, setPositional] = useState<AutoPositionResult>();
-        const autoPositionFn = useLatest(main());
+        const autoPositionFn = useRef(main());
         const transitionEnd = useRef<boolean>();
         const [point, setPoint] = useState<React.CSSProperties>();
 
@@ -112,11 +112,7 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
             to: undefined,
         });
 
-        const [dispatch, currentClassName, currentStyle] = useCssTransition(
-            {
-                ...style,
-                ...point,
-            },
+        const [dispatch, insertedAttr] = useCssTransition(
             () => {
                 // console.log("**************** start ******************");
                 handleTransitionStart?.();
@@ -135,12 +131,11 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
             },
             portalRef,
         );
-
         const dispatchRef = useLatest(dispatch);
 
         const isTransitionRef = useLatest(isTransition);
 
-        const getSizeRef = useCloneElementSize(portalRef, currentClassName, styleRef);
+        const getSizeRef = useCloneElementSize(portalRef, insertedAttr.className, styleRef);
 
         /**
          * 刷新计算位置的方法
@@ -210,12 +205,12 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
                     type: ActionType.SetClassNameAction,
                     payload: {
                         type: animationRef.current,
-                        enterActive: classList.enter.active,
-                        toEnter: classList.enter.to,
-                        fromEnter: classList.enter.from,
-                        leaveActive: classList.leave.active,
-                        toLeave: classList.leave.to,
-                        fromLeave: classList.leave.from,
+                        enterActive: classList?.enter.active,
+                        toEnter: classList?.enter.to,
+                        fromEnter: classList?.enter.from,
+                        leaveActive: classList?.leave.active,
+                        toLeave: classList?.leave.to,
+                        fromLeave: classList?.leave.from,
                     },
                 });
             };
@@ -250,7 +245,6 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
                     setTransitionClass(data);
                 }
                 if (needSwitchVisible) {
-                    // console.log("dispatch时候的show值", oldShow.current);
                     dispatchRef.current({
                         type: ActionType.SwitchVisibleStatusAction,
                         payload: {
@@ -284,16 +278,7 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
          * 将监听的数据转化为静态变量
          */
 
-        useEffect(() => {
-            return () => {
-                showRef.current = {
-                    from: undefined,
-                    to: undefined,
-                };
-            };
-        }, []);
-
-        {
+        useLayoutEffect(() => {
             /**
              *
              * 当切换为 可见
@@ -315,10 +300,9 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
                     transitionEnd.current = undefined;
                 }
             }
-        }
+        }, [show]);
 
         useEffect(() => {
-            let timer: null | number = null;
             if (typeof show === "boolean") {
                 const fn = (el: HTMLDivElement | null) => {
                     if (!el) {
@@ -346,15 +330,10 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
                 };
 
                 if (!(showRef.current.from === undefined && showRef.current.to === false)) {
-                    timer = window.setTimeout(() => {
-                        void getSizeRef.current().then(fn);
-                    });
+                    void getSizeRef.current().then(fn);
                 }
             }
 
-            return () => {
-                timer && window.clearTimeout(timer);
-            };
             //忽略ref的依赖
             // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [show]);
@@ -476,6 +455,46 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
         }, [root]);
 
         /**
+         * 监听下拉框里的图片
+         * 图片加载好后重新计算一下位置
+         */
+        useEffect(() => {
+            const imgs = portalRef.current?.querySelectorAll("img") ?? [];
+
+            let index = 0;
+            for (let i = 0; i < imgs.length; i++) {
+                const readOverFn = () => {
+                    ++index;
+                    if (index === imgs.length) {
+                        refreshFn.current();
+                    }
+                };
+                if (imgs[i].complete) {
+                    readOverFn();
+                } else {
+                    imgs[i].addEventListener("load", readOverFn, { once: true });
+                    imgs[i].addEventListener("error", readOverFn, { once: true });
+                }
+            }
+        }, []);
+
+        /**
+         * 字体加载好后重新计算一下位置
+         */
+        useEffect(() => {
+            if (document.fonts.status === "loaded") {
+                return;
+            }
+            document.fonts.addEventListener(
+                "loading",
+                () => {
+                    refreshFn.current();
+                },
+                { once: true },
+            );
+        }, []);
+
+        /**
          * 比较children element的变化
          */
         useEffect(() => {
@@ -542,12 +561,13 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
         const getClassName = () => {
             const arr = [
                 `kite_${direction}${placement.slice(0, 1).toUpperCase()}${placement.slice(1, 2)}`,
-                ...deepCloneData(currentClassName.current),
+                ...deepCloneData(insertedAttr.className),
             ];
 
             if (positional?.reverse) {
                 arr.push("kite_reverse");
             }
+
             return arr.join(" ") + (className ? ` ${className}` : "");
         };
 
@@ -565,7 +585,7 @@ const Temp = forwardRef<HTMLDivElement, TempProps>(
                         (ref as React.MutableRefObject<HTMLElement | null>).current = el;
                     }
                 }}
-                style={{ ...style, ...point, ...currentStyle.current }}
+                style={{ ...style, ...point, ...insertedAttr.style }}
                 {...props}
             >
                 <Triangle

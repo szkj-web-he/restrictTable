@@ -10,7 +10,7 @@
 
  */
 
-import { MutableRefObject, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { findReactElementFromDoms, includeElsProps } from "../Kite/Unit/findDomNode";
 
 import { GlobalClick } from "../Kite/Unit/type";
@@ -31,9 +31,9 @@ import { useLatest } from "./../../Hooks/useLatest";
 export const useGlobalClick = (
     callback: GlobalClick | undefined,
 
-    root: MutableRefObject<Element | HTMLElement | undefined | null>,
+    root: Element | undefined,
 
-    portal: MutableRefObject<HTMLDivElement | null>,
+    portal: React.MutableRefObject<HTMLDivElement | null>,
 ): void => {
     const callbackFn = useLatest(callback);
 
@@ -55,10 +55,10 @@ export const useGlobalClick = (
 
                 const arr: includeElsProps[] = [];
 
-                root.current &&
+                root &&
                     arr.push({
                         name: "isBtn",
-                        el: root.current,
+                        el: root,
                     });
                 portal.current && arr.push({ name: "isMenu", el: portal.current });
 

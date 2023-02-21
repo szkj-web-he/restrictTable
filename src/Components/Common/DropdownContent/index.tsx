@@ -6,15 +6,16 @@
  */
 /* <------------------------------------ **** DEPENDENCE IMPORT START **** ------------------------------------ */
 /** This section will include all the necessary dependence for this tsx file */
-import React, { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { DropdownProps, useDropdownContext } from "../Dropdown";
 import { useDropdownClick } from "../Hooks/useDropdownClick";
 import Portal from "../Portal";
 import { CustomEventAction } from "../Unit/type";
-import { useLatest } from "./../../Hooks/useLatest";
 import { useDropdownPropsContext } from "./../Dropdown/index";
 import { ActionType, useHover } from "./../Hooks/useHover";
 import { isCustom } from "./Unit/isCustom";
+import { useLayoutEffect } from "react";
+import { useLatest } from "./../../Hooks/useLatest";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -93,8 +94,9 @@ export const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
         /************* This section will include this component HOOK function *************/
         /**
          * dropdown的参数
+         * eventName   组件间通讯的id
          */
-        const dropdownProps = useDropdownPropsContext();
+        const { eventName, ...dropdownProps } = useDropdownPropsContext();
 
         const disableVal = useMemo(
             () => disable ?? dropdownProps.disable,
@@ -111,11 +113,6 @@ export const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
          *
          */
         const [visible, setVisible] = useState(show ?? dropdownProps.show ?? false);
-
-        /**
-         * 组件间通讯的id
-         */
-        const { eventName } = useDropdownPropsContext();
 
         /**
          * 获取活跃的id

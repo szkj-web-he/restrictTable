@@ -5,10 +5,10 @@
  * @lastModify xuejie.he 2022-10-20
  */
 
-import { MutableRefObject, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useLatest } from "../../Hooks/useLatest";
 import { useDropdownContext } from "../Dropdown";
 import { TriggerProps } from "../Unit/type";
-import { useLatest } from "./../../Hooks/useLatest";
 
 export const useDropdownClick = (
     visible: boolean,
@@ -16,18 +16,18 @@ export const useDropdownClick = (
     eventId?: string,
     eventName?: TriggerProps | TriggerProps[],
     disable?: boolean,
-): MutableRefObject<number | null> => {
+) => {
     const { btnIsClick } = useDropdownContext();
 
     const timer = useRef<number | null>(null);
-
-    const visibleRef = useLatest(visible);
 
     const disableRef = useLatest(disable);
 
     const destroy = useRef(false);
 
     const callbackRef = useLatest(callback);
+
+    const visibleRef = useLatest(visible);
 
     /**
      * 是否可以添加全局点击事件

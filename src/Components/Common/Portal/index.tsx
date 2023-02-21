@@ -58,16 +58,16 @@ const Temp = forwardRef<HTMLDivElement | null, TempProps>(
         /* <------------------------------------ **** STATE START **** ------------------------------------ */
         /************* This section will include this component HOOK function *************/
 
-        const [endFn, isRemove, isFirst] = useRemoveOnHidden(show, removeOnHidden, cache);
+        const [endFn, isRemove, isFirst, visible] = useRemoveOnHidden(show, removeOnHidden, cache);
 
         if (isRemove) {
             return <></>;
         }
         return (
             <Main
-                show={show}
+                show={visible}
                 ref={ref}
-                isTransition={isFirst ? show : true}
+                isTransition={isFirst ? visible : true}
                 handleTransitionStart={handleTransitionStart}
                 handleTransitionEnd={() => {
                     handleTransitionEnd?.();

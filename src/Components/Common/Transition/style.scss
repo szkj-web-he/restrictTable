@@ -20,6 +20,7 @@ $name: "transition_";
 .#{$name}fadeEnterActive,
 .#{$name}fadeLeaveActive {
     transition: opacity 0.2s ease;
+    @include shake();
 }
 .#{$name}fadeToEnter,
 .#{$name}fadeFromLeave {
@@ -51,6 +52,7 @@ $name: "transition_";
     box-sizing: border-box;
     transition: opacity 0.2s ease, height 0.2s ease, padding-top 0.2s ease, padding-bottom 0.2s ease,
         margin-top 0.2s ease, margin-bottom 0.2s ease;
+    @include shake();
 }
 
 .#{$name}tallerToEnter,
@@ -74,6 +76,7 @@ $name: "transition_";
     box-sizing: border-box;
     transition: opacity 0.2s ease, width 0.2s ease, padding-left 0.2s ease, padding-right 0.2s ease,
         margin-left 0.2s ease, margin-right 0.2s ease;
+    @include shake();
 }
 .#{$name}widerToEnter,
 .#{$name}widerFromLeave {

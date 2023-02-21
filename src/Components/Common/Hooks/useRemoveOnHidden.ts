@@ -5,14 +5,14 @@
  * @lastModify xuejie.he 2023-02-03
  */
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  *
  * @param show {boolean} 是否可见
  * @param removeOnHidden {boolean} 删除时是否隐藏
  * @param cache {boolean} 是否希望缓存节点
- * @returns [过渡结束后要调用的事件, 当前这个子节点要不要移除,当前这个子节点渲染了几次]
+ * @returns [过渡结束后要调用的事件, 当前这个子节点要不要移除,当前这个子节点渲染了几次,show的状态]
  */
 export const useRemoveOnHidden = (
     /**
@@ -27,11 +27,12 @@ export const useRemoveOnHidden = (
      * 是否希望缓存节点
      */
     cache?: boolean,
-): [() => void, boolean, boolean] => {
+): [() => void, boolean, boolean, boolean] => {
     /***
      * 记录上一次的show的状态
      */
-    const showRef = useRef<{
+
+    const [visibleData, setVisibleData] = useState<{
         from?: boolean;
         to?: boolean;
     }>({
@@ -46,27 +47,15 @@ export const useRemoveOnHidden = (
 
     /* <------------------------------------ **** HOOKS END **** ------------------------------------ */
 
-    useLayoutEffect(() => {
-        return () => {
-            showRef.current = {
-                from: undefined,
-                to: undefined,
-            };
-        };
-    }, []);
+    useEffect(() => {
+        setVisibleData((pre) => {
+            return { from: pre.to, to: show };
+        });
 
-    {
-        if (show !== showRef.current.to) {
-            showRef.current = {
-                from: showRef.current.to,
-                to: show,
-            };
-
-            if (showRef.current.from === true && showRef.current.to === false) {
-                setTransitionEnd(false);
-            }
+        if (show === false) {
+            setTransitionEnd(false);
         }
-    }
+    }, [show]);
 
     /**
      * 当过渡动画结束后 要调用这个
@@ -74,7 +63,7 @@ export const useRemoveOnHidden = (
      */
     const endFn = () => {
         if (removeOnHidden) {
-            if (showRef.current.to === false) {
+            if (visibleData.to === false) {
                 setTransitionEnd(true);
             } else {
                 setTransitionEnd(undefined);
@@ -91,7 +80,7 @@ export const useRemoveOnHidden = (
             return false;
         }
 
-        if (showRef.current.from === undefined && showRef.current.to === false) {
+        if (visibleData.from === undefined && visibleData.to === false) {
             return true;
         }
 
@@ -103,7 +92,7 @@ export const useRemoveOnHidden = (
             /**
              * 如果 在隐藏时需要删除节点
              */
-            if (cache && showRef.current.from !== undefined) {
+            if (cache && visibleData.from !== undefined) {
                 /**
                  * 如果 希望缓存节点
                  * 且加载过节点的次数大于0次
@@ -134,6 +123,6 @@ export const useRemoveOnHidden = (
     /**
      * 是不是首次传入show值
      */
-    const isFirst = showRef.current.from === undefined;
-    return [endFn, removeStatus, isFirst];
+    const isFirst = visibleData.from === undefined;
+    return [endFn, removeStatus, isFirst, visibleData.to ?? false];
 };

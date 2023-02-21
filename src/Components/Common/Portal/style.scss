@@ -17,7 +17,6 @@
     justify-content: flex-start;
 
     backface-visibility: hidden;
-    transform-style: preserve-3d;
     z-index: 99;
     .kite_body {
         box-sizing: border-box;
@@ -258,8 +257,7 @@
             &t {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 100% 0;
                 }
 
@@ -269,8 +267,7 @@
             &b {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 100% 100%;
                 }
                 @include Animate();
@@ -279,8 +276,7 @@
             &c {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 100% 50%;
                 }
                 @include Animate();
@@ -292,8 +288,7 @@
             &t {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 0 0;
                 }
 
@@ -303,8 +298,7 @@
             &b {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 0 100%;
                 }
                 @include Animate();
@@ -313,8 +307,7 @@
             &c {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 0 50%;
                 }
                 @include Animate();
@@ -327,8 +320,7 @@
             &t {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 0 100%;
                 }
 
@@ -338,8 +330,7 @@
             &b {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 0 0;
                 }
                 @include Animate();
@@ -351,8 +342,7 @@
             &t {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 100% 100%;
                 }
 
@@ -362,8 +352,7 @@
             &b {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 100% 0;
                 }
                 @include Animate();
@@ -375,8 +364,7 @@
             &t {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 50% 100%;
                 }
 
@@ -386,8 +374,7 @@
             &b {
                 &EnterActive,
                 &LeaveActive {
-                    transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), top 0.1s linear,
-                        left 0.1s linear, opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+                    transition: transform 150ms linear, opacity 100ms linear;
                     transform-origin: 50% 0;
                 }
                 @include Animate();

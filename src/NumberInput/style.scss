@@ -24,3 +24,53 @@
 .numberInput_wrapper[disabled] {
     background-color: #fff;
 }
+
+.mobileNumberInput_Wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.mobileNumberInput_mobileInputBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.mobileNumberInput_iptContainer {
+    position: relative;
+}
+
+.mobileNumberInput_ipt {
+    height: 44px;
+    padding: 0 40px 0 12px !important;
+}
+
+.mobileNumberInput_clearBtn {
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-flow: row nowrap;
+    top: 0;
+}
+
+.mobileNumberInput_clearIcon {
+    font-size: 18px;
+    color: #bdbdbd;
+}
+
+.mobileNumberInput_viewContent {
+    color: #4d4d4d;
+    @include c_body_3();
+}
+
+.mobileNumberInput_viewPlaceholder {
+    @include c_body_3();
+    color: #bdbdbd;
+}

@@ -48,7 +48,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
                 return;
             }
 
-            if (node && node.offsetHeight < node.scrollHeight) {
+            if (node && node.offsetHeight + 10 < node.scrollHeight) {
                 setIsDisable(false);
                 return;
             }

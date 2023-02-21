@@ -17,10 +17,12 @@ export interface TempProps {
     onActive: (res: boolean) => void;
     active: boolean;
     onChange: (res: string) => void;
+    value?: string;
+    mobileTitle?: string;
 }
 /* <------------------------------------ **** INTERFACE END **** ------------------------------------ */
 /* <------------------------------------ **** FUNCTION COMPONENT START **** ------------------------------------ */
-const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
+const Temp: React.FC<TempProps> = ({ onActive, active, onChange, value, mobileTitle }) => {
     /* <------------------------------------ **** STATE START **** ------------------------------------ */
     /************* This section will include this component HOOK function *************/
     const mobileStatus = useMobile();
@@ -32,9 +34,17 @@ const Temp: React.FC<TempProps> = ({ onActive, active, onChange }) => {
     /************* This section will include this component general function *************/
     /* <------------------------------------ **** FUNCTION END **** ------------------------------------ */
     if (mobileStatus) {
-        return <Mobile onActive={onActive} active={active} onChange={onChange} />;
+        return (
+            <Mobile
+                onActive={onActive}
+                active={active}
+                onChange={onChange}
+                value={value}
+                mobileTitle={mobileTitle}
+            />
+        );
     }
-    return <Desk onActive={onActive} active={active} onChange={onChange} />;
+    return <Desk onActive={onActive} active={active} onChange={onChange} value={value} />;
 };
 /* <------------------------------------ **** FUNCTION COMPONENT END **** ------------------------------------ */
 export default Temp;

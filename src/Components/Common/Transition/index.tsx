@@ -7,10 +7,10 @@
 /* <------------------------------------ **** DEPENDENCE IMPORT START **** ------------------------------------ */
 /** This section will include all the necessary dependence for this tsx file */
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
+import { useLatest } from "../../Hooks/useLatest";
+import { deepCloneData } from "../../Unit/deepCloneData";
 import { ActionType, useCssTransition } from "../Hooks/useCssTransition";
 import { useRemoveOnHidden } from "../Hooks/useRemoveOnHidden";
-import { useLatest } from "./../../Hooks/useLatest";
-import { deepCloneData } from "./../../Unit/deepCloneData";
 
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
@@ -129,14 +129,14 @@ export const Transition = forwardRef<HTMLDivElement, TransitionProps>(
         /* <------------------------------------ **** HOOKS START **** ------------------------------------ */
         /************* This section will include this component HOOK function *************/
 
-        const [endFn, isRemove, isFirst] = useRemoveOnHidden(show, removeOnHidden, cache);
+        const [endFn, isRemove, isFirst, visible] = useRemoveOnHidden(show, removeOnHidden, cache);
 
         if (isRemove) {
             return <></>;
         }
         return (
             <Main
-                show={show}
+                show={visible}
                 ref={ref}
                 isTransition={isFirst ? firstAnimation : true}
                 handleTransitionStart={handleTransitionStart}
@@ -189,8 +189,7 @@ const Main = forwardRef<
 
         const cloneRef = useRef<HTMLDivElement | null>(null);
 
-        const [dispatch, classList, currentStyle] = useCssTransition(
-            style,
+        const [dispatch, insertedAttr] = useCssTransition(
             handleTransitionStart,
             handleTransitionEnd,
             handleTransitionCancel,
@@ -257,7 +256,7 @@ const Main = forwardRef<
         // }, [show]);
 
         const setClassName = () => {
-            const arr = deepCloneData(classList.current);
+            const arr = deepCloneData(insertedAttr.className);
             return arr.join(" ") + (className ? ` ${className}` : "");
         };
 
@@ -271,7 +270,7 @@ const Main = forwardRef<
                         (ref as React.MutableRefObject<HTMLElement | null>).current = el;
                     }
                 }}
-                style={{ ...style, ...currentStyle.current }}
+                style={{ ...style, ...insertedAttr.style }}
                 className={setClassName()}
                 {...props}
             >

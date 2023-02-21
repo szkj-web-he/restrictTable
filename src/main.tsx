@@ -14,6 +14,7 @@ import { comms, DataProps, EumTypeProps } from "./index";
 import NumberInput from "./NumberInput";
 import TextInput from "./TextInput";
 import { useRef } from "react";
+import { useEffect } from "react";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -70,19 +71,29 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
     const getItemType = (rowIndex: number, colIndex: number, active: boolean) => {
         const colCode = cols[colIndex]?.code;
         const rowCode = rows[rowIndex]?.code;
+
+        const title =
+            rows[rowIndex] && cols[colIndex]
+                ? `${rows[rowIndex].content} - ${cols[colIndex].content}`
+                : "";
+
+        const handleChange = (res: string) => {
+            if (rowCode && colCode) {
+                itemsValueRef.current[rowCode][colCode] = res;
+                setItemsValue(deepCloneData(itemsValueRef.current));
+            }
+        };
+
+        const itemVal = itemsValue?.[rowCode]?.[colCode] ?? undefined;
+
         switch (colCode && colData[colCode].type) {
             case "eum":
                 return (
                     <DropdownList
                         menus={(colData[colCode] as EumTypeProps).options ?? []}
-                        onChange={(res) => {
-                            if (rowCode && colCode) {
-                                itemsValueRef.current[rowCode][colCode] = res;
-                                setItemsValue(deepCloneData(itemsValueRef.current));
-                            }
-                        }}
+                        onChange={handleChange}
                         active={active}
-                        value={itemsValue?.[rowCode]?.[colCode] ?? undefined}
+                        value={itemVal}
                         onActive={(status) => {
                             setActive((pre) => {
                                 if (status) {
@@ -110,6 +121,8 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                 return (
                     <TextInput
                         active={active}
+                        value={itemVal}
+                        mobileTitle={title}
                         onActive={(res) => {
                             setActive(
                                 res
@@ -120,18 +133,15 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                                     : undefined,
                             );
                         }}
-                        onChange={(res) => {
-                            if (rowCode && colCode) {
-                                itemsValueRef.current[rowCode][colCode] = res;
-                                setItemsValue(deepCloneData(itemsValueRef.current));
-                            }
-                        }}
+                        onChange={handleChange}
                     />
                 );
             case "number":
                 return (
                     <NumberInput
                         active={active}
+                        value={itemVal}
+                        mobileTitle={title}
                         onActive={(res) => {
                             setActive(
                                 res
@@ -142,16 +152,15 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                                     : undefined,
                             );
                         }}
-                        onChange={(res) => {
-                            if (rowCode && colCode) {
-                                itemsValueRef.current[rowCode][colCode] = res;
-                                setItemsValue(deepCloneData(itemsValueRef.current));
-                            }
-                        }}
+                        onChange={handleChange}
                     />
                 );
         }
     };
+
+    useEffect(() => {
+        comms.state = itemsValue;
+    }, [itemsValue]);
 
     /* <------------------------------------ **** FUNCTION END **** ------------------------------------ */
 

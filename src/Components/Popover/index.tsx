@@ -192,7 +192,6 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
         );
 
         useEffect(() => {
-            console.log("disable", disable, root);
             if (disable) {
                 delayTimer.current && window.clearTimeout(delayTimer.current);
                 hoverTimer.current && window.clearTimeout(hoverTimer.current);

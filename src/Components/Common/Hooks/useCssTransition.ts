@@ -6,9 +6,9 @@
  */
 
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
+import { useLatest } from "../../Hooks/useLatest";
 import { SizeProps } from "../Kite/Unit/type";
 import "../Transition/style.scss";
-import { setStyle } from "../Transition/Unit/addStyle";
 import { forceReflow } from "../Transition/Unit/forceReflow";
 import { getTransitionAttr } from "../Transition/Unit/getTransitionAttr";
 import {
@@ -16,33 +16,6 @@ import {
     initClassName,
     InitClassNameProps,
 } from "../Transition/Unit/initClassName";
-import { useLatest } from "./../../Hooks/useLatest";
-import { useLayoutEffect } from "react";
-
-/**
- * 过滤数组
- * @param { Array<string>} original 原始的数组
- * @param { Array<string>} exclude 剔除的数组
- * @returns {string[]} 新的数组
- */
-const filterArray = (original: Array<string>, exclude: Array<string>): Array<string> => {
-    const arr: string[] = [];
-    for (let i = 0; i < original.length; i++) {
-        let status = false;
-        for (let j = 0; j < exclude.length; ) {
-            if (original[i] === exclude[j]) {
-                status = true;
-                j = exclude.length;
-            } else {
-                ++j;
-            }
-        }
-        if (!status) {
-            arr.push(original[i]);
-        }
-    }
-    return arr;
-};
 
 export enum ActionType {
     /**
@@ -89,6 +62,11 @@ export function compareFn<T>(newData: T, oldData: T): T {
 
 type TransitionAction = SetClassNameAction | SwitchVisibleStatusAction;
 
+interface InsertAttrProps {
+    className: Array<string>;
+    style?: React.CSSProperties;
+}
+
 /**
  * transition-clock  用来获取过渡之前的数据
  * @param style: React.CSSProperties | undefined,
@@ -100,24 +78,25 @@ type TransitionAction = SetClassNameAction | SwitchVisibleStatusAction;
  * @returns
  */
 export const useCssTransition = (
-    style: React.CSSProperties | undefined,
     onTransitionStart: (() => void) | undefined,
     onTransitionEnd: (() => void) | undefined,
     onTransitionCancel: (() => void) | undefined,
     node: MutableRefObject<HTMLDivElement | null>,
     width: number | "auto" = "auto",
     height: number | "auto" = "auto",
-): [
-    (action: TransitionAction) => void,
-    MutableRefObject<string[]>,
-    MutableRefObject<React.CSSProperties | undefined>,
-] => {
+): [(action: TransitionAction) => void, InsertAttrProps] => {
     /**
      * 过渡切换时的类名
      */
     const transitionClassName = useRef<GetClassNameProps>();
 
-    const insertedClassName = useRef(["transition_hidden"]);
+    /**
+     * 执行过渡动画时的临时 属性
+     */
+    const [insertAttr, setInsertAttr] = useState<InsertAttrProps>({
+        className: ["transition_hidden"],
+        style: undefined,
+    });
 
     const isTransition = useRef(false);
 
@@ -147,27 +126,11 @@ export const useCssTransition = (
      */
     const nodeSize = useRef<SizeProps>();
 
-    /**
-     * root的原始style
-     */
-    const styleRef = useLatest(style);
-
-    /**
-     * 执行过渡行为时 操作过的style
-     */
-    const addStyleRef = useRef<React.CSSProperties>();
-
-    /**
-     * 延时销毁
-     */
-    const destroyTimer = useRef<number | null>(null);
-
-    useLayoutEffect(() => {
+    useEffect(() => {
         const root = node.current;
         let timer: number | null = null;
         let destroy = false;
         let count = 0;
-        let transitionAttr: ReturnType<typeof getTransitionAttr> | null = null;
         let cloneRoot: HTMLDivElement | null = null;
 
         /**
@@ -201,28 +164,22 @@ export const useCssTransition = (
             return status;
         };
 
-        /**
-         * 添加或删除className
-         */
-        const operationClassName = (type: "add" | "remove", cs: string[]) => {
-            const arr: string[] = [];
+        const changeAttr = (res: typeof insertAttr) => {
+            return new Promise((resolve) => {
+                setInsertAttr(() => {
+                    timer && window.clearTimeout(timer);
+                    timer = window.setTimeout(() => {
+                        timer = null;
+                        if (destroy) {
+                            return;
+                        }
+                        forceReflow();
+                        resolve(undefined);
+                    });
 
-            for (let i = 0; i < cs.length; i++) {
-                if (cs[i]) {
-                    arr.push(cs[i]);
-                }
-            }
-
-            switch (type) {
-                case "add":
-                    root?.classList.add(...arr);
-                    insertedClassName.current.push(...arr);
-                    break;
-                case "remove":
-                    root?.classList.remove(...arr);
-                    insertedClassName.current = filterArray(insertedClassName.current, arr);
-                    break;
-            }
+                    return res;
+                });
+            });
         };
 
         /**
@@ -241,18 +198,6 @@ export const useCssTransition = (
             });
         };
 
-        /**
-         * 声明周期结束时要执行的事件
-         */
-        const returnFn = () => {
-            root?.removeEventListener("transitionend", transitionendWhenHidden, false);
-            root?.removeEventListener("transitionend", transitionendWhenShow, false);
-            destroy = true;
-            if (timer) {
-                window.clearTimeout(timer);
-            }
-        };
-
         const transitionClass = transitionClassName.current;
 
         if (!root || !transitionClass) {
@@ -266,8 +211,9 @@ export const useCssTransition = (
         const transitionendWhenShow = (e: TransitionEvent) => {
             if (e.target === root) {
                 ++count;
-                if (count === transitionAttr?.propCount) {
-                    enterEnd();
+
+                if (count >= getTransitionAttr(root).propCount) {
+                    void enterEnd();
                 }
             }
         };
@@ -275,18 +221,20 @@ export const useCssTransition = (
         /**
          * 结束进入
          */
-        const enterEnd = () => {
+        const enterEnd = async () => {
             // console.log("enter end");
             timer && window.clearTimeout(timer);
             timer = null;
+
+            await changeAttr({
+                className: [],
+                style: undefined,
+            });
+
             transitionEnd.current = true;
             isPending.current = false;
 
-            operationClassName("remove", insertedClassName.current);
-            setStyle(root, styleRef.current);
             count = 0;
-            transitionAttr = null;
-            addStyleRef.current = undefined;
 
             transitionEndFn.current?.();
             root.removeEventListener("transitionend", transitionendWhenShow, false);
@@ -295,19 +243,19 @@ export const useCssTransition = (
         /**
          *  进入 后
          */
-        const enterTo = () => {
+        const enterTo = async () => {
             // console.log("enter to");
-            operationClassName("remove", [transitionClass.enter.from]);
 
+            let styleData: React.CSSProperties | undefined = undefined;
             if (nodeSize.current) {
                 switch (animationName.current) {
                     case "taller":
-                        addStyleRef.current = {
+                        styleData = {
                             height: `${nodeSize.current.height}px`,
                         };
                         break;
                     case "wider":
-                        addStyleRef.current = {
+                        styleData = {
                             width: `${nodeSize.current.width}px`,
                         };
                         break;
@@ -315,15 +263,12 @@ export const useCssTransition = (
                         break;
                 }
             }
-            if (addStyleRef.current) {
-                setStyle(root, Object.assign({}, addStyleRef.current, styleRef.current));
-            }
+            await changeAttr({
+                className: [transitionClass.enter.active, transitionClass.enter.to],
+                style: styleData,
+            });
 
-            operationClassName("add", [transitionClass.enter.to]);
-
-            transitionAttr = getTransitionAttr(root);
-
-            void delayTimeFn(transitionAttr.timeout + 1).then(enterEnd);
+            void delayTimeFn(getTransitionAttr(root).timeout + 1).then(enterEnd);
 
             root.addEventListener("transitionend", transitionendWhenShow, false);
         };
@@ -332,32 +277,29 @@ export const useCssTransition = (
          * 进入前
          *
          */
-        const enterFrom = () => {
+        const enterFrom = async () => {
             // console.log("enter from", root);
-            operationClassName("add", [transitionClass.enter.from, transitionClass.enter.active]);
-            operationClassName(
-                "remove",
-                filterArray(insertedClassName.current, [
-                    transitionClass.enter.from,
-                    transitionClass.enter.active,
-                ]),
-            );
-            forceReflow();
 
-            void delayTimeFn().then(enterTo);
+            await changeAttr({
+                className: [transitionClass.enter.from, transitionClass.enter.active],
+            });
+            await delayTimeFn();
+            void enterTo();
         };
 
         /**
          * 结束离开
          */
-        const leaveEnd = () => {
+        const leaveEnd = async () => {
+            await changeAttr({
+                className: ["transition_hidden"],
+                style: undefined,
+            });
+
             transitionEnd.current = true;
             isPending.current = false;
 
-            operationClassName("remove", insertedClassName.current);
-            operationClassName("add", ["transition_hidden"]);
             count = 0;
-            transitionAttr = null;
             root.removeEventListener("transitionend", transitionendWhenHidden, false);
 
             timer && window.clearTimeout(timer);
@@ -373,8 +315,8 @@ export const useCssTransition = (
         const transitionendWhenHidden = (e: TransitionEvent) => {
             if (e.target === root) {
                 ++count;
-                if (count === transitionAttr?.propCount) {
-                    leaveEnd();
+                if (count >= getTransitionAttr(root).propCount) {
+                    void leaveEnd();
                 }
             }
         };
@@ -382,13 +324,13 @@ export const useCssTransition = (
         /**
          * 离开后
          */
-        const leaveTo = () => {
-            operationClassName("remove", [transitionClass.leave.from]);
-            setStyle(root, styleRef.current);
-            addStyleRef.current = undefined;
-            operationClassName("add", [transitionClass.leave.to]);
+        const leaveTo = async () => {
+            await changeAttr({
+                className: [transitionClass.leave.to, transitionClass.leave.active],
+                style: undefined,
+            });
 
-            void delayTimeFn((transitionAttr?.timeout ?? 0) + 1).then(leaveEnd);
+            void delayTimeFn(getTransitionAttr(root).timeout + 1).then(leaveEnd);
 
             // console.log("leaveTo");
             root.addEventListener("transitionend", transitionendWhenHidden, false);
@@ -397,18 +339,20 @@ export const useCssTransition = (
         /**
          * 离开前
          */
-        const leaveFrom = () => {
+        const leaveFrom = async () => {
             // console.log("leaveFrom");
+
+            let styleData: React.CSSProperties | undefined = undefined;
 
             if (nodeSize.current) {
                 switch (animationName.current) {
                     case "taller":
-                        addStyleRef.current = {
+                        styleData = {
                             height: `${nodeSize.current.height}px`,
                         };
                         break;
                     case "wider":
-                        addStyleRef.current = {
+                        styleData = {
                             width: `${nodeSize.current.width}px`,
                         };
                         break;
@@ -417,17 +361,16 @@ export const useCssTransition = (
                 }
             }
 
-            if (addStyleRef.current) {
-                setStyle(root, Object.assign({}, addStyleRef.current, styleRef.current));
-            }
+            await changeAttr({
+                className: [transitionClass.leave.from, transitionClass.leave.active],
+                style: styleData,
+            });
 
-            operationClassName("add", [transitionClass.leave.from, transitionClass.leave.active]);
-            transitionAttr = getTransitionAttr(root);
             void delayTimeFn().then(leaveTo);
         };
 
         //转为可见
-        const toVisible = (needInit: boolean) => {
+        const toVisible = () => {
             const toTransition = () => {
                 void readSize().then(() => {
                     /**
@@ -435,7 +378,7 @@ export const useCssTransition = (
                      * 再执行过渡动画
                      */
                     transitionEnd.current = false;
-                    enterFrom();
+                    void enterFrom();
                 });
             };
 
@@ -446,13 +389,16 @@ export const useCssTransition = (
                 /**
                  * enter的过渡className有过渡属性
                  */
-                if (needInit && !root.classList.contains("transition_hidden")) {
-                    operationClassName("add", ["transition_hidden"]);
-                    forceReflow();
-                    void delayTimeFn().then(toTransition);
-                    return;
+                if (window.getComputedStyle(root, null).display !== "none") {
+                    void changeAttr({
+                        className: ["transition_hidden"],
+                        style: undefined,
+                    }).then(() => {
+                        void delayTimeFn().then(toTransition);
+                    });
+                } else {
+                    toTransition();
                 }
-                toTransition();
                 return;
             }
 
@@ -460,7 +406,7 @@ export const useCssTransition = (
              * enter的过渡className 没有 过渡属性
              */
             transitionEnd.current = false;
-            enterEnd();
+            void enterEnd();
         };
 
         //转为不可见
@@ -474,12 +420,13 @@ export const useCssTransition = (
                      * 读取完尺寸
                      * 再执行过渡动画
                      */
+                    forceReflow();
                     transitionEnd.current = false;
-                    leaveFrom();
+                    void leaveFrom();
                 });
             } else {
                 transitionEnd.current = false;
-                leaveEnd();
+                void leaveEnd();
             }
         };
 
@@ -488,10 +435,10 @@ export const useCssTransition = (
          * 只有在过渡没有结束的情况下
          */
         const revertAttr = () => {
-            addStyleRef.current = undefined;
-
-            setStyle(root, styleRef.current);
-            operationClassName("remove", insertedClassName.current);
+            return changeAttr({
+                className: show ? ["transition_hidden"] : [],
+                style: undefined,
+            });
         };
 
         /**
@@ -547,8 +494,11 @@ export const useCssTransition = (
                      * 如果状态不对
                      * 那就让他变成对的
                      */
-                    operationClassName("add", ["transition_hidden"]);
-                    forceReflow();
+
+                    await changeAttr({
+                        className: ["transition_hidden"],
+                    });
+
                     await delayTimeFn();
                 }
 
@@ -573,19 +523,24 @@ export const useCssTransition = (
                     mustRevertClass.remove = "";
                     forceReflow();
                 });
-                return;
-            } else if (show === false && window.getComputedStyle(root, null).display !== "none") {
+            } else if (show === false) {
+                if (window.getComputedStyle(root, null).display === "none") {
+                    await changeAttr({
+                        className: [],
+                        style: undefined,
+                    });
+                }
                 /**
                  * 要变成可见
                  * 此时不可见
                  */
-                await delayTimeFn().then(() => {
-                    const rect = root.getBoundingClientRect();
-                    nodeSize.current = {
-                        width: rect.width,
-                        height: rect.height,
-                    };
-                });
+                await delayTimeFn();
+
+                const rect = root.getBoundingClientRect();
+                nodeSize.current = {
+                    width: rect.width,
+                    height: rect.height,
+                };
             }
             return;
         };
@@ -601,13 +556,13 @@ export const useCssTransition = (
          * 添加transition_hidden这个属性
          *
          */
-        const mainFn = (needInit = false) => {
+        const mainFn = () => {
             if (isTransition.current) {
                 /**
                  * 如果需要执行过渡动画
                  */
                 if (show) {
-                    toVisible(needInit);
+                    toVisible();
                 } else {
                     toHidden();
                 }
@@ -617,9 +572,9 @@ export const useCssTransition = (
                  * 如果不需要执行过渡动画
                  */
                 if (show) {
-                    enterEnd();
+                    void enterEnd();
                 } else {
-                    leaveEnd();
+                    void leaveEnd();
                 }
             }
         };
@@ -628,97 +583,43 @@ export const useCssTransition = (
          * 当 show的类型为boolean
          */
         if (typeof show === "boolean") {
-            destroyTimer.current && window.clearTimeout(destroyTimer.current);
             if (isPending.current) {
                 /**
                  * 清除上次动画遗留的属性
                  */
-                revertAttr();
-                transitionCancelFn.current?.();
 
-                /**
-                 * 开始这一次的
-                 */
-                transitionStartFn.current?.();
-                isPending.current = true;
-                mainFn();
+                void revertAttr().then(() => {
+                    transitionCancelFn.current?.();
+
+                    /**
+                     * 开始这一次的
+                     */
+                    transitionStartFn.current?.();
+                    isPending.current = true;
+                    mainFn();
+                });
             } else {
                 transitionStartFn.current?.();
                 isPending.current = true;
-                mainFn(true);
+                mainFn();
             }
         }
+
         return () => {
             mustRevertClass.remove && root.classList.add(mustRevertClass.remove);
             mustRevertClass.add && root.classList.remove(mustRevertClass.add);
-            returnFn();
+
+            root?.removeEventListener("transitionend", transitionendWhenHidden, false);
+            root?.removeEventListener("transitionend", transitionendWhenShow, false);
+            destroy = true;
+            if (timer) {
+                window.clearTimeout(timer);
+            }
+
             cloneRoot?.remove();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [show]);
-
-    /**
-     * 当生命周期结束的时候
-     * 要还原
-     */
-    useEffect(() => {
-        const root = node.current;
-        const operationClassName = (type: "add" | "remove", cs: string[]) => {
-            const arr: string[] = [];
-
-            for (let i = 0; i < cs.length; i++) {
-                if (cs[i]) {
-                    arr.push(cs[i]);
-                }
-            }
-
-            switch (type) {
-                case "add":
-                    root?.classList.add(...arr);
-                    insertedClassName.current.push(...arr);
-                    break;
-                case "remove":
-                    root?.classList.remove(...arr);
-                    insertedClassName.current = filterArray(insertedClassName.current, arr);
-                    break;
-            }
-        };
-
-        const initStyleData = styleRef.current;
-
-        const cancelFn = transitionCancelFn.current;
-
-        return () => {
-            destroyTimer.current = window.setTimeout(() => {
-                /**
-                 * 这里为什么加延时
-                 * 因为存在组件销毁
-                 * 又马上创建的问题
-                 */
-
-                if (showRef.current) {
-                    operationClassName("remove", insertedClassName.current);
-                } else {
-                    operationClassName(
-                        "remove",
-                        filterArray(insertedClassName.current, ["transition_hidden"]),
-                    );
-                }
-                addStyleRef.current = undefined;
-
-                if (root) {
-                    setStyle(root, initStyleData);
-                }
-
-                if (isPending.current) {
-                    cancelFn?.();
-                }
-                isPending.current = false;
-                transitionEnd.current = true;
-            });
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const dispatch = useCallback((action: TransitionAction) => {
         switch (action.type) {
@@ -742,5 +643,6 @@ export const useCssTransition = (
                 break;
         }
     }, []);
-    return [dispatch, insertedClassName, addStyleRef];
+
+    return [dispatch, insertAttr];
 };

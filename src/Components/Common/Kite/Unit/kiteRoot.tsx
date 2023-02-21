@@ -53,7 +53,6 @@ const KiteRoot: React.FC<KiteRootProps> = ({ children, id, getRootEl }) => {
         if (!isValidElement(children) && children.nodeType === 1) {
             getRootElFn.current(children);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [children]);
 
     useLayoutEffect(() => {
@@ -69,13 +68,13 @@ const KiteRoot: React.FC<KiteRootProps> = ({ children, id, getRootEl }) => {
             if (!childrenList) {
                 return;
             }
-
             for (let i = 0; i < childrenList.length; i++) {
-                const childrenItem = childrenList[i] as HTMLElement;
+                const childrenItem = childrenList[i];
                 if (childrenItem !== el) {
-                    const status = findDomFn(childrenItem, id);
+                    const element = childrenItem as HTMLElement;
+                    const status = findDomFn(element, id);
                     if (status) {
-                        getRootElFn.current(childrenItem);
+                        getRootElFn.current(element);
                     }
                 }
             }
@@ -83,7 +82,6 @@ const KiteRoot: React.FC<KiteRootProps> = ({ children, id, getRootEl }) => {
             showIRef.current = false;
             setShowI(showIRef.current);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, showI]);
 
     /* <------------------------------------ **** STATE END **** ------------------------------------ */

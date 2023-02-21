@@ -1,0 +1,70 @@
+@use "../Components/Constant/font.scss" as *;
+
+.mobileView_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    background-color: #f9fbfb;
+}
+
+.mobileView_top {
+    height: 70px;
+    width: 100%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-flow: row nowrap;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+.mobileView_backBtn {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.mobileView_backIcon {
+    font-size: 16px;
+    color: #4d4d4d;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    margin: auto;
+    transform: rotate(180deg);
+}
+
+.mobileView_topName {
+    flex: 1 1 auto;
+    text-align: center;
+    @include c_h_5();
+    color: #212121;
+}
+
+.mobileView_confirmBtn {
+    @include c_h_6();
+    color: #212121;
+    flex: 0 0 auto;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.mobileView_main {
+    padding-top: 16px;
+    height: calc(100% - 70px);
+}
+
+.mobileView_title {
+    @include c_body_3();
+    color: #4d4d4d;
+    margin-bottom: 8px;
+    padding: 0 12px;
+}

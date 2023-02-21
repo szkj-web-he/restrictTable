@@ -77,11 +77,11 @@ export const Kite = forwardRef<HTMLDivElement, KiteProps>(
 
         const [ready, setReady] = useState(false);
 
-        useGlobalClick(handleGlobalClick, { current: rootEl }, portalRef);
-
-        const [visible, setVisible] = useState<boolean>();
+        useGlobalClick(handleGlobalClick, rootEl, portalRef);
 
         const setRootElement = useKiteRoot();
+
+        const [visible, setVisible] = useState<boolean>();
         /* <------------------------------------ **** STATE END **** ------------------------------------ */
         /* <------------------------------------ **** PARAMETER START **** ------------------------------------ */
         /************* This section will include this component parameter *************/

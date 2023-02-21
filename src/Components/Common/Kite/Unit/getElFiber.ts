@@ -5,7 +5,7 @@
  * @lastModify xuejie.he 2021-12-31
  */
 
-import { Fiber, fiberKey } from "../../../Common/Kite/Unit/findDomNode";
+import { Fiber, fiberKey } from "./findDomNode";
 
 /**
  * 获取element 的fiber object

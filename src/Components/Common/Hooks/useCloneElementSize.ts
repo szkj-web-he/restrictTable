@@ -8,17 +8,20 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { setStyle } from "../Transition/Unit/addStyle";
 import { forceReflow } from "../Transition/Unit/forceReflow";
 import "../Transition/style.scss";
+import { useLatest } from "../../Hooks/useLatest";
 
 export const useCloneElementSize = (
     ref: MutableRefObject<HTMLDivElement | null>,
-    removeClassList: React.MutableRefObject<string[]>,
+    removeClassList: string[],
     originStyle: MutableRefObject<React.CSSProperties | undefined>,
-): MutableRefObject<() => Promise<HTMLDivElement | null>> => {
+) => {
     const timer = useRef<number | null>(null);
 
     const destroy = useRef(false);
 
     const cloneEl = useRef<HTMLDivElement | null>(null);
+
+    const removeClassListRef = useLatest(removeClassList);
 
     useEffect(() => {
         destroy.current = false;
@@ -57,13 +60,12 @@ export const useCloneElementSize = (
                 const parentEl = el.parentElement;
                 parentEl?.appendChild(cloneEl.current);
                 cloneEl.current.classList.add("transition_r__hidden");
-                for (let i = 0; i < removeClassList.current.length; i++) {
-                    cloneEl.current.classList.remove(removeClassList.current[i]);
+                for (let i = 0; i < removeClassListRef.current.length; i++) {
+                    cloneEl.current.classList.remove(removeClassListRef.current[i]);
                 }
                 setStyle(cloneEl.current, originStyle.current);
 
                 forceReflow();
-                const imgs = cloneEl.current?.querySelectorAll("img") ?? [];
 
                 //结束时的行为
 
@@ -75,29 +77,11 @@ export const useCloneElementSize = (
                     });
                 };
 
-                if (!imgs.length) {
-                    //如果没图片
-                    void delayFn().then(() => {
-                        endFn();
-                    });
-                    return;
-                }
-
-                let index = 0;
-                for (let i = 0; i < imgs.length; i++) {
-                    const readOverFn = () => {
-                        ++index;
-                        if (index === imgs.length) {
-                            endFn();
-                        }
-                    };
-                    if (imgs[i].complete) {
-                        readOverFn();
-                    } else {
-                        imgs[i].addEventListener("load", readOverFn, { once: true });
-                        imgs[i].addEventListener("error", readOverFn, { once: true });
-                    }
-                }
+                //如果没图片
+                void delayFn().then(() => {
+                    endFn();
+                });
+                return;
             });
         });
     });

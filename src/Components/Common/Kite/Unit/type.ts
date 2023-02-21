@@ -47,10 +47,6 @@ export interface MainProps extends React.HTMLAttributes<HTMLDivElement> {
      */
     direction?: "vertical" | "horizontal";
     /**
-     * Callback function for position change
-     */
-    handlePositionChange?: (x: number | undefined, y: number | undefined) => void;
-    /**
      * ontransitionEnd callback
      */
     handleTransitionEnd?: () => void;

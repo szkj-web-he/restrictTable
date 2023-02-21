@@ -520,10 +520,10 @@ export const main = () => {
         };
 
         const kiteBoundary = {
-            top: boundary.top,
-            right: boundary.right,
-            bottom: boundary.bottom,
-            left: boundary.left,
+            top: boundary.top + 8,
+            right: boundary.right - 8,
+            bottom: boundary.bottom - 8,
+            left: boundary.left + 8,
         };
 
         staticData = {
