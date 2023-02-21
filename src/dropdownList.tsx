@@ -13,6 +13,7 @@ import { DropdownContent } from "./Components/Common/DropdownContent";
 import { Icon } from "./Components/Icon";
 import { Popover } from "./Components/Popover";
 import { ScrollComponent } from "./Components/Scroll";
+import { useMobile } from "./Components/Scroll/Unit/useMobile";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -36,6 +37,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
 
     const [isDisable, setIsDisable] = useState(false);
 
+    const mobileStatus = useMobile();
     /* <------------------------------------ **** STATE END **** ------------------------------------ */
     /* <------------------------------------ **** PARAMETER START **** ------------------------------------ */
     /************* This section will include this component parameter *************/
@@ -43,7 +45,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
     useLayoutEffect(() => {
         const node = ref.current;
         const fn = () => {
-            if (active) {
+            if (active || mobileStatus) {
                 setIsDisable(true);
                 return;
             }
@@ -66,7 +68,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
         return () => {
             observer.disconnect();
         };
-    }, [active]);
+    }, [active, mobileStatus]);
 
     /* <------------------------------------ **** PARAMETER END **** ------------------------------------ */
     /* <------------------------------------ **** FUNCTION START **** ------------------------------------ */

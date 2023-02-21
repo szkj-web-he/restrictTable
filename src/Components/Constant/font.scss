@@ -349,3 +349,9 @@ $fs_l_14: 300 1.4rem $commonFamily;
     }
     letter-spacing: 0.05rem;
 }
+
+@mixin TouchNone {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    outline: none;
+    appearance: none;
+}

@@ -18,6 +18,9 @@
     position: relative;
     z-index: 2;
     width: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    appearance: none;
+    background-color: #fff;
 }
 
 .textInput_edit::placeholder {
@@ -63,6 +66,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    @include TouchNone();
 }
 
 .mobileTextInput_viewContent {
