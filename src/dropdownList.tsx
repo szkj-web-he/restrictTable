@@ -15,6 +15,7 @@ import { Popover } from "./Components/Popover";
 import { ScrollComponent } from "./Components/Scroll";
 import { useMobile } from "./Components/Scroll/Unit/useMobile";
 import classNames from "./Components/Unit/classNames";
+import { useLatest } from "./Components/Hooks/useLatest";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -39,6 +40,8 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
     const [isDisable, setIsDisable] = useState(false);
 
     const mobileStatus = useMobile();
+
+    const valueRef = useLatest(value);
     /* <------------------------------------ **** STATE END **** ------------------------------------ */
     /* <------------------------------------ **** PARAMETER START **** ------------------------------------ */
     /************* This section will include this component parameter *************/
@@ -46,7 +49,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
     useLayoutEffect(() => {
         const node = ref.current;
         const fn = () => {
-            if (active || mobileStatus) {
+            if (active || mobileStatus || !valueRef) {
                 setIsDisable(true);
                 return;
             }
@@ -69,6 +72,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
         return () => {
             observer.disconnect();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [active, mobileStatus]);
 
     /* <------------------------------------ **** PARAMETER END **** ------------------------------------ */
