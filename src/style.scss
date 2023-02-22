@@ -38,6 +38,11 @@ body {
     @include c_h_5();
 }
 
+.questionDes {
+    @include c_subtitle_5();
+    color: #757575;
+}
+
 .table_wrapper {
     border: 1px solid #ebebeb;
     border-radius: 8px;

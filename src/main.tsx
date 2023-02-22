@@ -15,6 +15,7 @@ import NumberInput from "./NumberInput";
 import TextInput from "./TextInput";
 import { useRef } from "react";
 import { useEffect } from "react";
+import { useMemo } from "react";
 /* <------------------------------------ **** DEPENDENCE IMPORT END **** ------------------------------------ */
 /* <------------------------------------ **** INTERFACE START **** ------------------------------------ */
 /** This section will include all the interface for this tsx file */
@@ -29,13 +30,13 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
     /* <------------------------------------ **** STATE START **** ------------------------------------ */
     /************* This section will include this component HOOK function *************/
 
-    const [itemsWidth, setItemsWidth] = useState(() => {
+    const itemsWidth = useMemo(() => {
         const cols = deepCloneData(comms.config.options?.[1]) ?? [];
         cols.unshift({ code: "", content: "" });
         return cols.map(() => {
             return `calc(100vw / ${cols.length})`;
         });
-    });
+    }, []);
 
     const [active, setActive] = useState<{
         row: number;
@@ -167,13 +168,20 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
     return (
         <div className={"table_wrapper"}>
             {rows?.map((row, index) => {
-                return (
-                    <div className={"row_wrapper"} key={index}>
-                        {cols?.map((col, i) => {
-                            if (index === 0) {
+                let tableTitle = <></>;
+                if (index === 0) {
+                    tableTitle = (
+                        <div className={"row_wrapper"}>
+                            {cols.map((col, i) => {
+                                /**
+                                 * 如果是第一行
+                                 */
                                 if (i === 0) {
+                                    /**
+                                     * 如果是第一列
+                                     */
                                     return (
-                                        <Fragment key={i}>
+                                        <Fragment key={`${index}+${i}`}>
                                             <div
                                                 className={"col_wrapper col_bolder"}
                                                 style={{ width: itemsWidth[i] }}
@@ -188,7 +196,7 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                                     );
                                 }
                                 return (
-                                    <Fragment key={i}>
+                                    <Fragment key={`${index}+${i}`}>
                                         <div
                                             className={"col_wrapper col_bolder"}
                                             style={{ width: itemsWidth[i + 1] }}
@@ -197,58 +205,51 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
                                         </div>
                                     </Fragment>
                                 );
-                            }
+                            })}
+                        </div>
+                    );
+                }
 
-                            if (i === 0) {
-                                return (
-                                    <Fragment key={i}>
-                                        <div
-                                            className={"col_wrapper col_bolder"}
-                                            style={{ width: itemsWidth[i] }}
-                                        >
-                                            {row.content}
-                                        </div>
-                                        <div
-                                            className={classNames("col_wrapper", {
-                                                col_active:
-                                                    active &&
-                                                    index === active.row &&
-                                                    i === active.col,
-                                            })}
-                                            style={{ width: itemsWidth[i + 1] }}
-                                        >
-                                            {getItemType(
-                                                index,
-                                                i,
-                                                (active &&
-                                                    index === active.row &&
-                                                    i === active.col) ||
-                                                    false,
-                                            )}
-                                        </div>
-                                    </Fragment>
+                return (
+                    <Fragment key={`aaa${index}`}>
+                        {tableTitle}
+                        <div className={"row_wrapper"}>
+                            {cols?.map((col, i) => {
+                                const colEl = (
+                                    <div
+                                        className={classNames("col_wrapper", {
+                                            col_active:
+                                                active && index === active.row && i === active.col,
+                                        })}
+                                        style={{ width: itemsWidth[i + 1] }}
+                                    >
+                                        {getItemType(
+                                            index,
+                                            i,
+                                            (active && index === active.row && i === active.col) ||
+                                                false,
+                                        )}
+                                    </div>
                                 );
-                            }
 
-                            return (
-                                <div
-                                    className={classNames("col_wrapper", {
-                                        col_active:
-                                            active && index === active.row && i === active.col,
-                                    })}
-                                    style={{ width: itemsWidth[i + 1] }}
-                                    key={i}
-                                >
-                                    {getItemType(
-                                        index,
-                                        i,
-                                        (active && index === active.row && i === active.col) ||
-                                            false,
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                                if (i === 0) {
+                                    return (
+                                        <Fragment key={`${row.code}-${col.code}`}>
+                                            <div
+                                                className={"col_wrapper col_bolder"}
+                                                style={{ width: itemsWidth[i] }}
+                                            >
+                                                {row.content}
+                                            </div>
+                                            {colEl}
+                                        </Fragment>
+                                    );
+                                }
+
+                                return <Fragment key={`${row.code}-${col.code}`}>{colEl}</Fragment>;
+                            })}
+                        </div>
+                    </Fragment>
                 );
             })}
         </div>
