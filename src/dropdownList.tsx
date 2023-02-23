@@ -49,7 +49,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
     useLayoutEffect(() => {
         const node = ref.current;
         const fn = () => {
-            if (active || mobileStatus || !valueRef) {
+            if (active || mobileStatus || !valueRef.current) {
                 setIsDisable(true);
                 return;
             }
