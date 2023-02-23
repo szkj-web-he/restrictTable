@@ -37,7 +37,7 @@ const Temp: React.FC<TempProps> = ({ menus, onChange, value, onActive, active })
     /************* his section will include this component HOOK function *************/
     const ref = useRef<HTMLDivElement | null>(null);
 
-    const [isDisable, setIsDisable] = useState(false);
+    const [isDisable, setIsDisable] = useState(true);
 
     const mobileStatus = useMobile();
 
