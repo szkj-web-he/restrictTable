@@ -22,11 +22,15 @@ import { useMemo } from "react";
 
 interface TempProps {
     colData: Record<string, DataProps>;
+    /**
+     * 答案的回溯
+     */
+    state?: Record<string, Record<string, string | null>>;
 }
 
 /* <------------------------------------ **** INTERFACE END **** ------------------------------------ */
 /* <------------------------------------ **** FUNCTION COMPONENT START **** ------------------------------------ */
-const Temp: React.FC<TempProps> = ({ colData }) => {
+const Temp: React.FC<TempProps> = ({ colData, state }) => {
     /* <------------------------------------ **** STATE START **** ------------------------------------ */
     /************* This section will include this component HOOK function *************/
 
@@ -53,7 +57,7 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
             const colData: Record<string, string | null> = {};
             for (let j = 0; j < cols.length; j++) {
                 const col = cols[j];
-                colData[col.code] = null;
+                colData[col.code] = state?.[row.code]?.[col.code] ?? null;
             }
             data[row.code] = colData;
         }
@@ -61,6 +65,8 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
     });
 
     const itemsValueRef = useRef(deepCloneData(itemsValue));
+
+    const count = useRef(0);
 
     /* <------------------------------------ **** STATE END **** ------------------------------------ */
     /* <------------------------------------ **** PARAMETER START **** ------------------------------------ */
@@ -160,7 +166,31 @@ const Temp: React.FC<TempProps> = ({ colData }) => {
     };
 
     useEffect(() => {
-        comms.state = itemsValue;
+        if (count.current) {
+            const rows = comms.config.options?.[0] ?? [];
+            const cols = comms.config.options?.[1] ?? [];
+            const data: Record<string, Record<string, string | null>> = {};
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+
+                const colData: Record<string, string | null> = {};
+                for (let j = 0; j < cols.length; j++) {
+                    const col = cols[j];
+                    colData[col.code] = state?.[row.code]?.[col.code] ?? null;
+                }
+                data[row.code] = colData;
+            }
+
+            setItemsValue(deepCloneData(data));
+
+            itemsValueRef.current = deepCloneData(data);
+        } else {
+            ++count.current;
+        }
+    }, [state]);
+
+    useEffect(() => {
+        comms.state = itemsValue as unknown as Record<string, string | null>;
     }, [itemsValue]);
 
     /* <------------------------------------ **** FUNCTION END **** ------------------------------------ */

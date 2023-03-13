@@ -19,7 +19,7 @@ export const comms = new PluginComms({
         options?: Array<Array<{ code: string; content: string }>>;
         data?: string;
     };
-    state: unknown;
+    state: Record<string, string | null>;
     renderOnReady: (res: React.ReactNode) => void;
 };
 
@@ -120,11 +120,23 @@ const Main: React.FC = () => {
     /* <------------------------------------ **** FUNCTION START **** ------------------------------------ */
     /************* This section will include this component general function *************/
 
+    const stateData: Record<string, Record<string, string | null>> = {};
+    for (const key in comms.state) {
+        const keyVal = key.includes("#") ? key.split("#")[1] : undefined;
+        const data: Record<string, string | null> = {};
+        if (keyVal?.includes("_")) {
+            const arr = keyVal.split("_");
+            data[arr[1]] = comms.state[key];
+            stateData[arr[0]] = Object.assign({}, { ...stateData[arr[0]] }, { ...data });
+        }
+    }
+    console.log("回溯答案", comms.state);
+
     /* <------------------------------------ **** FUNCTION END **** ------------------------------------ */
     return (
         <ScrollComponent className="wrapper">
             <Header />
-            <MainContent colData={data} />
+            <MainContent colData={data} state={stateData} />
         </ScrollComponent>
     );
 };

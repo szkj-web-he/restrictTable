@@ -3,8 +3,7 @@ question: "Q1. 请填写下面的内容"
 # The instructions to the question can be modified by the survey owner. It's recommended that the existing instructions are included in the customised instructions.
 instruction: "请设置data参数"
 
-options:
-    [
+options: [
         [
             { "code": "a", "content": "装卸投料" },
             { "code": "b", "content": "清洁工" },
@@ -14,11 +13,11 @@ options:
             { "code": "0", "content": "定编人数" },
             { "code": "1", "content": "班次" },
             { "code": "2", "content": "备注1" },
-            { "code": "3", "content": "备注2" },
-            { "code": "4", "content": "备注3" },
-            { "code": "5", "content": "备注4" },
+            # { "code": "3", "content": "备注2" },
+            # { "code": "4", "content": "备注3" },
+            # { "code": "5", "content": "备注4" },
         ],
     ]
 
 # {列的code :{ type: number } 或者 {type:"eum", options:[下拉可选值,下拉可选值...] }或者 {type:"string"} }
-data: '{"0":{"type":"number"},"1":{"type":"eum","options":["早班","中班","晚班","临时工,没有固定工时(上下班打卡记录工作时长)"]},"2":{"type":"string"},"3":{"type":"string"},"4":{"type":"string"},"5":{"type":"string"}}'
+data: '{"0":{"type":"number"},"1":{"type":"eum","options":["早班","中班","晚班","临时工,没有固定工时(上下班打卡记录工作时长)"]},"2":{"type":"string"}}'
